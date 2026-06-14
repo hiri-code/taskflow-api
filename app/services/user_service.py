@@ -1,5 +1,9 @@
+import logging
+
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.core.exceptions import UserNotFoundError
+
+logger = logging.getLogger(__name__)
 
 class UserService:
     def __init__(self):
@@ -13,6 +17,7 @@ class UserService:
         for user in self._users:
             if user.id == user_id:
                 return user
+        logger.warning("User not found: id=%s", user_id)
         raise UserNotFoundError(user_id)
     
     def create_user(self, data: UserCreate) -> UserResponse:
@@ -24,6 +29,7 @@ class UserService:
         )
         self._users.append(new_user)
         self._next_id += 1
+        logger.info("User created: id=%s email=%s username=%s", new_user.id, new_user.email, new_user.username)
         return new_user
     
     def update_user(self, user_id: int, data: UserUpdate) -> UserResponse:

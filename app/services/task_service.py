@@ -1,5 +1,10 @@
+import logging
+
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.core.exceptions import TaskNotFoundError
+
+logger = logging.getLogger(__name__)
+
 
 class TaskService:
     def __init__(self):
@@ -13,6 +18,7 @@ class TaskService:
         for task in self._tasks:
             if task.id == task_id:
                 return task
+        logger.warning("Task not found: id=%s", task_id)
         raise TaskNotFoundError(task_id)
     
     def create_task(self, data: TaskCreate) -> TaskResponse:
@@ -24,6 +30,7 @@ class TaskService:
         )
         self._tasks.append(new_task)
         self._next_id += 1
+        logger.info("Task created: id=%s title=%r", new_task.id, new_task.title)
         return new_task
     
     def update_task(self, task_id: int, data: TaskUpdate) -> TaskResponse:
